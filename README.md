@@ -3,10 +3,27 @@ Role Name
 
 A brief description of the role goes here.
 
+Ansible role to DevOps-ify Cisco Viptela's enrivonrment, using Cisco Viptela's software-defined networking capablities and vManage's remote management capabilities.
+
 Requirements
 ------------
-viptela-python
-requests
+
+All modules of this role require ``python2.7`` environment::
+
+    sudo pip install viptela-python --upgrade
+    sudo pip install ansible
+
+Installation
+------------
+The Ansible role can be installed directly from Ansible Galaxy by running::
+
+     ansible-galaxy install eugene_ky_wong.viptela_ansible 
+
+If the ``ansible-galaxy`` command-line tool is not available (usually shipped with Ansible), or you prefer to download the role package directly,
+navigate to the Ansible Galaxy `role page <https://galaxy.ansible.com/eugene_ky_wong/viptela_ansible>`_ and hit "Download".
+
+Alternately, you can directly navigate to our `GitHub repository <https://galaxy.ansible.com/eugene_ky_wong/viptela_ansible>`_.
+
 
 Role Variables
 --------------
