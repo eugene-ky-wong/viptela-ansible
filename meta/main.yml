@@ -22,7 +22,7 @@ galaxy_info:
   # (usually master) will be used.
   #github_branch:
 
-platforms:
+platforms:[
   - name: EL
     versions:
     - all
@@ -56,6 +56,7 @@ platforms:
   - name: Debian
     versions:
     - all
+]
 
   galaxy_tags:
     - viptela
