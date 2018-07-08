@@ -1,0 +1,22 @@
+- name: Module for uploading and upgrading firmware using vManage
+  connection: local
+  hosts: localhost
+  gather_facts: False
+  vars_files:
+    - variables.yml
+
+  tasks:
+  - debug:
+      msg: "** Start of Workflow **"
+
+  - name: Firmware_Upload
+    viptela_command:
+      user: 'admin2'
+      user_pass: 'admin2'
+      vmanage_server: "{{ vmanage_server }}"
+      filename: 'viptela-18.2.0-mips64.tar.gz'
+      action: 'firmware_upload'
+    register: upload
+
+  - debug:
+      msg: "** End of Workflow **"

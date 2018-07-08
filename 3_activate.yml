@@ -1,0 +1,50 @@
+- name: Module for uploading and upgrading firmware using vManage
+  connection: local
+  hosts: localhost
+  gather_facts: False
+  vars_files:
+    - variables.yml
+
+  tasks:
+  - debug:
+      msg: "** Start of Workflow **"
+
+  - name: Get_UUID
+    viptela_command:
+      user: 'admin2'
+      user_pass: 'admin2'
+      vmanage_server: "{{ vmanage_server }}"
+      device_type: 'vedges'
+      action: 'get_all_devices'
+    register: devices
+
+  - set_fact:
+      device_uuid={{ devices.results | selectattr('deviceId', 'equalto', ip_address) |
+        map(attribute='uuid') | list }}
+
+  - name: Change_Partition
+    viptela_command:
+      user: 'admin2'
+      user_pass: 'admin2'
+      vmanage_server: "{{ vmanage_server }}"
+      version: "{{ version }}"
+      action: 'activate'
+      ip_address: "{{ ip_address }}"
+      device_uuid: "{{ device_uuid[0] }}"
+    register: change_partition
+
+  - name: Check_Upgrade_Status
+    viptela_command:
+      user: 'admin2'
+      user_pass: 'admin2'
+      vmanage_server: "{{ vmanage_server }}"
+      URL: "{{ change_partition.results }}"
+      action: 'check_status'
+    register: check_status
+    retries: "{{ timeout * 6 }}"
+    delay: 10
+    until: ( check_status.results[0].statusId=="success" ) or
+           ( check_status.results[0].statusId=="skipped" )
+
+  - debug:
+      msg: "** End of Workflow **"

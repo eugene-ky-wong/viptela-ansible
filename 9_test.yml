@@ -1,0 +1,57 @@
+- name: Module for uploading and upgrading firmware using vManage
+  connection: local
+  hosts: localhost
+  gather_facts: False
+  vars_files:
+  - variables.yml
+
+  tasks:
+  - debug:
+      msg: "** Start of Workflow **"
+
+  - set_fact:
+      ip_address: '1.1.1.11'
+
+  - set_fact:
+      vmanage_server: '172.16.130.171'
+
+  - name: Get_UUID
+    viptela_command:
+      user: 'admin2'
+      user_pass: 'admin2'
+      vmanage_server: "{{ vmanage_server }}"
+      device_type: 'vedges'
+      action: 'get_all_devices'
+    register: devices
+
+  - set_fact:
+      device_uuid={{ devices.results | selectattr('deviceId', 'equalto', ip_address) |
+        map(attribute='uuid') | list }}
+
+  - name: Get_Running_Config
+    viptela_command:
+      user: 'admin2'
+      user_pass: 'admin2'
+      device_uuid: "{{ device_uuid[0] }}"
+      vmanage_server: "{{ vmanage_server }}"
+      action: 'get_running_config'
+    register: results
+
+  - debug:
+      msg: "{{ results }}"
+
+  - name: Test_command
+    viptela_command:
+      user: 'admin2'
+      user_pass: 'admin2'
+      ip_address: "{{ ip_address }}"
+      device_uuid: "{{ device_uuid[0] }}"
+      vmanage_server: "{{ vmanage_server }}"
+      action: 'get_bgp_neighbours'
+    register: results
+
+  - debug:
+      msg: "{{ results }}"
+
+  - debug:
+      msg: "** End of Workflow **"
