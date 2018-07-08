@@ -17,7 +17,7 @@ Installation
 ------------
 The Ansible role can be installed directly from Ansible Galaxy by running::
 
-     ansible-galaxy install eugene_ky_wong.viptela_ansible 
+     ansible-galaxy install eugene_ky_wong.viptela_ansible --force 
 
 If the ``ansible-galaxy`` command-line tool is not available (usually shipped with Ansible), or you prefer to download the role package directly,
 navigate to the Ansible Galaxy `role page <https://galaxy.ansible.com/eugene_ky_wong/viptela_ansible>`_ and hit "Download".
