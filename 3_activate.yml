@@ -27,7 +27,8 @@
       device_current_version={{ devices.results | selectattr('deviceId', 'equalto', ip_address) |
         map(attribute='version') | list }}
 
-  - fail:
+  - name: Check if device is at version
+    fail:
       msg: '{{ "Device is already at version " + version }}'
     when: version == device_current_version[0]
 
@@ -42,6 +43,15 @@
       device_uuid: "{{ device_uuid[0] }}"
     register: change_partition
 
+  - name: First_Check_Upgrade_Status
+    viptela_command:
+      user: '{{ user }}'
+      user_pass: '{{ pass }}'
+      vmanage_server: "{{ vmanage_server }}"
+      URL: "{{ change_partition.results }}"
+      action: 'check_status'
+    register: check_status
+
   - name: Check_Upgrade_Status
     viptela_command:
       user: '{{ user }}'
@@ -53,7 +63,8 @@
     retries: "{{ timeout * 6 }}"
     delay: 10
     until: ( check_status.results[0].statusId=="success" ) or
-           ( check_status.results[0].statusId=="skipped" )
+           ( check_status.results[0].statusId=="skipped" ) or
+           ( check_status.results[0].statusId=="cancelled" ) 
 
   - debug:
       msg: "** End of Workflow **"

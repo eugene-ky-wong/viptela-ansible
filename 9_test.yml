@@ -35,15 +35,21 @@
   - debug:
       msg: "{{ results }}"
 
-  - name: Test_command - Get BGP Neighbors
+  - name: Test_command - Check Firmware
     viptela_command:
       user: '{{ user }}'
       user_pass: '{{ pass }}'
-      ip_address: "{{ ip_address }}"
-      device_uuid: "{{ device_uuid[0] }}"
       vmanage_server: "{{ vmanage_server }}"
-      action: 'get_bgp_neighbours'
+      action: 'check_firmware'
     register: results
+
+  - set_fact:
+      device_firmwares={{ results.results | selectattr('system-ip', 'equalto', ip_address) |
+        map(attribute='availableVersions') | list }}
+
+  - fail:
+       msg: '{{ "Version " + version + " already installed" }}'
+    when: version in device_firmwares[0]
 
   - debug:
       msg: "{{ results }}"

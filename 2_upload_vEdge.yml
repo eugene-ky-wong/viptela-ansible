@@ -23,6 +23,27 @@
       device_uuid={{ devices.results | selectattr('deviceId', 'equalto', ip_address) |
         map(attribute='uuid') | list }}
 
+  - name: Check_firmware
+    viptela_command:
+      user: '{{ user }}'
+      user_pass: '{{ pass }}'
+      vmanage_server: "{{ vmanage_server }}"
+      version: "{{ version }}"
+      URL: 'vmanage'
+      #device_type: 'vedges'
+      action: 'check_firmware'
+      ip_address: "{{ ip_address }}"
+      device_uuid: "{{ device_uuid[0] }}"
+    register: firmware
+
+  - set_fact: Check_if_firmware_exists_already
+      device_firmwares={{ firmware.results | selectattr('system-ip', 'equalto', ip_address) |
+        map(attribute='availableVersions') | list }}
+
+  - fail:
+       msg: '{{ "Version " + version + " already installed" }}'
+    when: version in device_firmwares[0]
+
   - name: Upgrade_Software
     viptela_command:
       user: '{{ user }}'
@@ -47,7 +68,8 @@
     retries: "{{ timeout * 6 }}"
     delay: 10
     until: ( check_status.results[0].statusId=="success" ) or
-           ( check_status.results[0].statusId=="skipped" )
+           ( check_status.results[0].statusId=="skipped" ) or
+           ( check_status.results[0].statusId=="cancelled" )
 
   - debug:
       msg: "** End of Workflow **"

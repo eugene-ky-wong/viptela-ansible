@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="ansible-viptela",
-    version="0.0.1",
+    version="0.0.2",
     author="Eugene KY Wong",
     author_email="morphyme@gmail.com",
     description="This is the Cisco Viptela Ansible SDK",

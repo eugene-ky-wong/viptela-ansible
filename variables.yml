@@ -1,4 +1,4 @@
-vmanage_server: 1.1.1.1
+vmanage_server: 172.16.130.171
 ip_address: 1.1.1.10
-version: 18.2.0
+version: 17.2.3
 timeout: 30
