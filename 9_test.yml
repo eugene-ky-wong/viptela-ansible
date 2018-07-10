@@ -2,10 +2,9 @@
   connection: local
   hosts: localhost
   gather_facts: False
-  vars_files:
-  - variables.yml
-
   tasks:
+  #- name: run the new module
+
   - debug:
       msg: "** Start of Workflow **"
 
@@ -40,7 +39,7 @@
   - debug:
       msg: "{{ results }}"
 
-  - name: Test_command
+  - name: Test_command - Get BGP Neighbors
     viptela_command:
       user: 'admin2'
       user_pass: 'admin2'
