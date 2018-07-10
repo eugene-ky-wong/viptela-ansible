@@ -4,6 +4,7 @@
   gather_facts: False
   vars_files:
   - variables.yml
+  - vault.yml
 
   tasks:
   - debug:
@@ -11,8 +12,8 @@
 
   - name: Get_UUID
     viptela_command:
-      user: 'admin2'
-      user_pass: 'admin2'
+      user: '{{ user }}'
+      user_pass: '{{ pass }}'
       vmanage_server: "{{ vmanage_server }}"
       device_type: 'vedges'
       action: 'get_all_devices'
@@ -24,8 +25,8 @@
 
   - name: Upgrade_Software
     viptela_command:
-      user: 'admin2'
-      user_pass: 'admin2'
+      user: '{{ user }}'
+      user_pass: '{{ pass }}'
       vmanage_server: "{{ vmanage_server }}"
       version: "{{ version }}"
       URL: 'vmanage'
@@ -37,8 +38,8 @@
 
   - name: Check_Upgrade_Status
     viptela_command:
-      user: 'admin2'
-      user_pass: 'admin2'
+      user: '{{ user }}'
+      user_pass: '{{ pass }}'
       vmanage_server: "{{ vmanage_server }}"
       URL: "{{ upgrade.results }}"
       action: 'check_status'

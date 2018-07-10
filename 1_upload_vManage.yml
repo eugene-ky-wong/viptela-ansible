@@ -3,7 +3,8 @@
   hosts: localhost
   gather_facts: False
   vars_files:
-    - variables.yml
+  - variables.yml
+  - vault.yml
 
   tasks:
   - debug:
@@ -11,8 +12,8 @@
 
   - name: Firmware_Upload
     viptela_command:
-      user: 'admin2'
-      user_pass: 'admin2'
+      user: '{{ user }}'
+      user_pass: '{{ pass }}'
       vmanage_server: "{{ vmanage_server }}"
       filename: 'viptela-18.2.0-mips64.tar.gz'
       action: 'firmware_upload'
