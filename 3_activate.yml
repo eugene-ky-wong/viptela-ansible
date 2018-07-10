@@ -22,6 +22,14 @@
       device_uuid={{ devices.results | selectattr('deviceId', 'equalto', ip_address) |
         map(attribute='uuid') | list }}
 
+  - set_fact:
+      device_current_version={{ devices.results | selectattr('deviceId', 'equalto', ip_address) |
+        map(attribute='version') | list }}
+
+  - fail:
+      msg: '{{ "Device is already at version " + version }}'
+    when: version == device_current_version[0]
+
   - name: Change_Partition
     viptela_command:
       user: 'admin2'
