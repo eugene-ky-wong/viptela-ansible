@@ -23,6 +23,15 @@
       device_uuid={{ devices.results | selectattr('deviceId', 'equalto', ip_address) |
         map(attribute='uuid') | list }}
 
+  - set_fact:
+      device_current_version={{ devices.results | selectattr('deviceId', 'equalto', ip_address) |
+        map(attribute='version') | list }}
+
+  - name: Check if device is already at version
+    fail:
+      msg: '{{ "Device is already at version " + version }}'
+    when: version == device_current_version[0]
+
   - name: Check_firmware
     viptela_command:
       user: '{{ user }}'
