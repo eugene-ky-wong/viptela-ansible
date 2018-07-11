@@ -9,13 +9,13 @@ setuptools.setup(
     author="Eugene KY Wong",
     author_email="morphyme@gmail.com",
     description="This is the Cisco Viptela Ansible SDK",
-    long_description=This is the Cisco Viptela Ansible SDK which allows execution through Ansible,
+    long_description="This is the Cisco Viptela Ansible SDK which allows execution through Ansible",
     long_description_content_type="text/markdown",
     url="https://github.com/eugene-ky-wong/viptela-ansible",
     packages=setuptools.find_packages(),
     classifiers=(
         "Programming Language :: Python :: 2.7",
-        "License :: OSI Approved :: BSD-3-Clause",
+        "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
     ),
     install_requires=[

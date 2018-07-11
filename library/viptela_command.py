@@ -24,7 +24,7 @@ module: viptela_command
 
 short_description: This does various actions pertaining to Viptela's REST API
 
-version_added: "0.0.1"
+version_added: "0.0.2"
 
 description:
     - "This module allows various commands to invoke commands in vManage, including staging software in vEdge, vManage as well as upgrading of routers"
