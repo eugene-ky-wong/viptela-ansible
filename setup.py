@@ -20,7 +20,7 @@ setuptools.setup(
     ),
     install_requires=[
         "requests",
-        "viptela_python>=0.5.8",
+        "viptela_python>=0.5.9",
         "ansible"
     ],
     python_requires='~=2.7'
