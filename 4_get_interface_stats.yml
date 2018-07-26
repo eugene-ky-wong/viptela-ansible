@@ -1,0 +1,26 @@
+- name: Module for obtaining interface statistics
+  connection: local
+  hosts: localhost
+  gather_facts: False
+  vars_files:
+  - variables.yml
+  - vault.yml
+
+  tasks:
+  - debug:
+      msg: "** Start of Workflow **"
+
+  - name: Get interface statistics
+    viptela_command:
+      user: '{{ user }}'
+      user_pass: '{{ pass }}'
+      vmanage_server: "{{ vmanage_server }}"
+      ip_address: "{{ ip_address }}"
+      action: 'get_device_interface'
+    register: device_interface
+
+  - debug:
+      msg: '{{ device_interface }}'
+
+  - debug:
+      msg: "** End of Workflow **"

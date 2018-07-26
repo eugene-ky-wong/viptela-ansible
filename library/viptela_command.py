@@ -85,7 +85,7 @@ options:
              get_transport_connection, get tunnel_statistics, get_omp_peers,
              get_cellular_network, get_cellular_profiles, get_cellular_radio,
              get_cellular_status, get_ipsec_inbound, get_ipsec_outbound,
-             get_ipsec_localsa'
+             get_ipsec_localsa, get_device_interface'
     template_id:
         description:
             - Template ID
