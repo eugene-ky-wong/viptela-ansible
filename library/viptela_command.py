@@ -13,7 +13,7 @@ except ImportError:
 
 
 ANSIBLE_METADATA = {
-    'metadata_version': '0.1',
+    'metadata_version': '0.0.3',
     'status': ['preview'],
     'supported_by': 'community'
 }
@@ -24,7 +24,7 @@ module: viptela_command
 
 short_description: This does various actions pertaining to Viptela's REST API
 
-version_added: "0.0.2"
+version_added: "0.0.3"
 
 description:
     - "This module allows various commands to invoke commands in vManage, including staging software in vEdge, vManage as well as upgrading of routers"
@@ -86,12 +86,22 @@ options:
              get_cellular_network, get_cellular_profiles, get_cellular_radio,
              get_cellular_status, get_ipsec_inbound, get_ipsec_outbound,
              get_ipsec_localsa'
-
     template_id:
         description:
             - Template ID
-        required: optional for action 'get_template_feature'
-
+        required: only for action 'get_template_feature'
+    template:
+        description:
+            - Template in json format
+        required: only for action 'set_policy_in_template'
+    template_name:
+        description:
+            - Template Name
+        required: only for action 'get_template_device_object'
+    policy_id:
+        description:
+            - Policy ID
+        required: only for action 'get_template_device_object'
 extends_documentation_fragment:
     - nil
 
@@ -160,16 +170,28 @@ message:
 '''
 
 DEVICE_ID_MODULES = {
-             'get_arp_table', 'get_bgp_summary', 'get_bgp_routes', 'get_bgp_neighbours',
-             'get_ospf_routes', 'get_ospf_neighbours', 'get_ospf_database',
-             'get_transport_connection', 'get tunnel_statistics', 'get_omp_peers',
-             'get_cellular_network', 'get_cellular_profiles', 'get_cellular_radio',
-             'get_cellular_status', 'get_ipsec_inbound', 'get_ipsec_outbound',
-             'get_ipsec_localsa'
+            'get_arp_table', 'get_bgp_summary', 'get_bgp_routes', 'get_bgp_neighbours',
+            'get_ospf_routes', 'get_ospf_neighbours', 'get_ospf_database',
+            'get_transport_connection', 'get tunnel_statistics', 'get_omp_peers',
+            'get_cellular_network', 'get_cellular_profiles', 'get_cellular_radio',
+            'get_cellular_status', 'get_ipsec_inbound', 'get_ipsec_outbound',
+            'get_ipsec_localsa', 'get_device_interface'
 }
 
 DEVICE_UUID_MODULES = {
-             'get_running_config'
+            'get_running_config'
+}
+
+TEMPLATE_ID_MODULES = {
+            'get_template_device_object'
+}
+
+SET_POLICY_MODULES = {
+            'attach_feature_to_devices','set_policy_in_template', 'set_policy_in_template2', 'set_policy_in_template3'
+}
+
+URL_MODULES = {
+            'delete_push_feature'
 }
 
 from ansible.module_utils.basic import AnsibleModule
@@ -187,7 +209,12 @@ def run_module():
         action=dict(type='str', required=True),
         device_type=dict(type='str', required=False),
         device_uuid=dict(type='str', required=False),
+        template_id=dict(type='str', required=False),
+        template=dict(type='str', required=False),
+        template_name=dict(type='str', required=False),
+        policy_id=dict(type='str', required=False),
         ip_address=dict(type='str', required=False),
+        do_not_fail=dict(type='bool', required=False, default=False),
         verify=dict(type='bool', required=False, default=False)
     )
 
@@ -228,9 +255,16 @@ def run_module():
         vManage_args = {'device_id': module.params['ip_address']}
     elif module.params['action'] in DEVICE_UUID_MODULES:
         vManage_args = {'device_uuid': module.params['device_uuid']}
+    elif module.params['action'] in TEMPLATE_ID_MODULES:
+        vManage_args = {'template_id': module.params['template_id']}
+    elif module.params['action'] in SET_POLICY_MODULES:
+        vManage_args = {'template_id': module.params['template_id'],
+                        'template': module.params['template'],
+                        'policy_id': module.params['policy_id']}
+    elif module.params['action'] in URL_MODULES:
+        vManage_args = {'status_url': module.params['URL']}
     else:
-        vManage_args = {'device_type': module.params['device_type'],
-            'device_uuid': module.params['device_uuid']}
+        vManage_args = {}
 
     # if the user is working with this module in only check mode we do not
     # want to make any changes to the environment, just return the current
@@ -251,9 +285,9 @@ def run_module():
 
         #result['changed']=True
         if (method_name == "upgrade"):
-            response = vsession.upgrade(**vManage_upgrade_args)
+            (response, url, payload) = vsession.upgrade(**vManage_upgrade_args)
         elif (method_name == "activate"):
-            (response) = vsession.activate(**vManage_upgrade_args)
+            (response, url, payload) = vsession.activate(**vManage_upgrade_args)
         result['status_code'] = response.status_code
         result['results'] = response.data
 
@@ -262,26 +296,13 @@ def run_module():
 
         result['changed']=True
         if (method_name == "check_status"):
-            response = vsession.check_status(module.params['URL'])
+            (response, url, payload) = vsession.check_status(module.params['URL'])
         elif (method_name == "set_banner"):
-            response = vsession.set_banner(module.params['URL'])
+            (response, url, payload) = vsession.set_banner(module.params['URL'])
         elif (method_name == "firmware_upload"):
-            response = vsession.firmware_upload(module.params['filename'])
+            (response, url, payload) = vsession.firmware_upload(module.params['filename'])
         result['status_code'] = response.status_code
         result['results'] = response.data
-
-    elif (module.params['action'] in DEVICE_ID_MODULES or 
-      module.params['action'] in DEVICE_UUID_MODULES):
-        try:
-            method = getattr(vsession, method_name)
-        except AttributeError:
-            raise NotImplementedError("Class `{}` does not implement `{}`"
-                .format(vsession.__class__.__name__, method_name))
-
-        response=method(**vManage_args)
-
-        result['results'] = response.data
-        result['status_code'] = response.status_code
 
     else:
         try:
@@ -289,10 +310,23 @@ def run_module():
         except AttributeError:
             raise NotImplementedError("Class `{}` does not implement `{}`"
                 .format(vsession.__class__.__name__, method_name))
-        method()
 
-        result['status_code'] = method().status_code
-        result['results'] = method().data
+        (response, url, payload)=method(**vManage_args)
+
+        try:
+          response.data
+        except:
+          result['results'] = str(response.data)
+          result['url'] = url
+          result['payload'] = payload          
+        else:
+          result['results'] = response.data
+          result['error'] = response.error
+          result['status_code'] = response.status_code
+          if response.status_code != 200:
+            result['url'] = url
+            result['payload'] = payload
+
 
     # use whatever logic you need to determine whether or not this module
     # made any modifications to your target
@@ -302,8 +336,9 @@ def run_module():
     # during the execution of the module, if there is an exception or a
     # conditional state that effectively causes a failure, run
     # AnsibleModule.fail_json() to pass in the message and the result
-    if module.params['version'] == 'fail me':
-        module.fail_json(msg='You requested this to fail', **result)
+    if (not module.params['do_not_fail']) and response.status_code !=200:
+        module.fail_json(msg='Failed', **result)
+
 
     # in the event of a successful module execution, you will want to
     # simple AnsibleModule.exit_json(), passing the key/value results
